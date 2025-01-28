@@ -1,7 +1,9 @@
 <?php include "./layouts/header.php" ?>
 <div class="container-xxl bg-white p-0">
   <!-- Spinner Start -->
-  <?php include("./components/spinner.php") ?>
+  <?php
+   include("./components/spinner.php") 
+   ?>
   <!-- Spinner End -->
 
   <!-- Navbar Start -->
