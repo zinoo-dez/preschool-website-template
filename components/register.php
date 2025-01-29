@@ -13,8 +13,7 @@ if (isset($_POST['register'])) {
     $phone = trim($_POST['phone']);
     $address = trim($_POST['address']);
     $role = trim($_POST['role']);
-    // $hire_date = trim($_GET['hire_date']);
-    // $salary = trim($_GET['salary']);
+
     empty($name) ? $errors['name'] = 'Name is required' : '';
     empty($email) ? $errors['email'] = 'Email is required' : '';
     empty($password) ? $errors['password'] = 'Password is required' : '';
@@ -22,8 +21,7 @@ if (isset($_POST['register'])) {
     empty($phone) ? $errors['phone'] = 'Phone number is required' : '';
     empty($address) ? $errors['address'] = 'Address is required' : '';
     empty($role) ? $errors['role'] = 'Role is required' : '';
-    empty($hire_date) ? $errors['hire_date'] = 'Hire date is required' : '';
-    empty($salary) ? $errors['salary'] = 'Salary is required' : '';
+
 
     if (filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
         $errors['email'] = 'Invalid email address';
@@ -55,14 +53,15 @@ if (isset($_POST['register'])) {
     $user_id = $pdo->lastInsertId();
     // echo $user_id;
     // echo $role;
+
+
+    // echo $user_id;
+    // echo $role;
     if ($role === 'Teacher') {
-        // echo "Teacher";
-        // $user_id = $user_id;
-        // $name = "mgmg";
-        // $phone = "0912345678";
-        $hire_date = $now;
-        $salary = 100000;
-        echo $user_id, $name, $phone, $hire_date, $salary, $address;
+        $hire_date = trim($_POST['hire_date']);
+        $salary = trim($_POST['salary']);
+        empty($hire_date) ? $errors['hire_date'] = 'Hire date is required' : '';
+        empty($salary) ? $errors['salary'] = 'Salary is required' : '';
         $insert_teacher_qry = 'INSERT INTO Teachers (user_id, name, phone, hire_date, salary, address) VALUES (:user_id, :name, :phone, :hire_date, :salary, :address)';
         $stmt = $pdo->prepare($insert_teacher_qry);
         $stmt->bindParam(':user_id', $user_id);
@@ -72,12 +71,14 @@ if (isset($_POST['register'])) {
         $stmt->bindParam(':salary', $salary);
         $stmt->bindParam(':address', $address);
         $res =  $stmt->execute();
-        print_r($res);
     } elseif ($role === 'Staff') {
-        $insert_staff_qry = 'INSERT INTO Staff (user_id, name, phone, staff_role, hire_date, salary, address) VALUES (:user_id, :name, :phone, :staff_role, :hire_date, :salary, :address)';
         $staff_role = trim($_POST['staff_role']);
         $hire_date = trim($_POST['hire_date']);
         $salary = trim($_POST['salary']);
+        empty($staff_role) ? $errors['staff_role'] = 'Staff role is required' : '';
+        empty($hire_date) ? $errors['hire_date'] = 'Hire date is required' : '';
+        empty($salary) ? $errors['salary'] = 'Salary is required' : '';
+        $insert_staff_qry = 'INSERT INTO Staff (user_id, name, phone, staff_role, hire_date, salary, address) VALUES (:user_id, :name, :phone, :staff_role, :hire_date, :salary, :address)';
         $stmt = $pdo->prepare($insert_staff_qry);
         $stmt->bindParam(':user_id', $user_id);
         $stmt->bindParam(':name', $name);
@@ -87,27 +88,35 @@ if (isset($_POST['register'])) {
         $stmt->bindParam(':salary', $salary);
         $stmt->bindParam(':address', $address);
         $stmt->execute();
-    } elseif ($role === 'Parent') {
-        $insert_parent_qry = 'INSERT INTO Parents (user_id, name, phone, address) VALUES (:user_id, :name, :phone, :address)';
+    } else if ($role === 'Parent') {
+        $parent_id = null;
+        $insert_parent_qry = 'INSERT INTO Parents (parent_id, user_id, name, phone, address) VALUES (:parent_id, :user_id, :name, :phone, :address)';
         $stmt = $pdo->prepare($insert_parent_qry);
+        $stmt->bindParam(':parent_id', $parent_id);
         $stmt->bindParam(':user_id', $user_id);
         $stmt->bindParam(':name', $name);
         $stmt->bindParam(':phone', $phone);
         $stmt->bindParam(':address', $address);
-        $stmt->execute();
+        $res = $stmt->execute();
     }
 
     if ($stmt) {
-        echo "Registration successful!";
+        $success['register_success'] = true;
     } else {
-        echo "Error: Found to send data to the database ";
+        $success['register_success'] = false;
     }
 }
 
 ?>
 <div class="container-xxl py-5" id="classes">
     <div class="container">
-
+        <?php
+        if (isset($success['register_success']) && $success['register_success']) {
+            echo '<div class="alert alert-success text-center">Register success</div>';
+        } elseif (isset($success['register_success']) && !$success['register_success']) {
+            echo '<div class="alert alert-danger text-center">Register failed</div>';
+        }
+        ?>
         <div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 600px">
             <h1 class="mb-3">Register Form</h1>
         </div>
@@ -154,35 +163,8 @@ if (isset($_POST['register'])) {
                             <option value="Admin">Admin</option>
                         </select>
                     </div>
-                    <div id="teacher">
-                        <div class="mb-3">
-                            <label for="">Hire Date</label>
-                            <input type="date" class="form-control" name="hire_date" id="">
-                        </div>
-                        <div class="mb-3">
-                            <label for="">Salary</label>
-                            <input type="text" class="form-control" name="salary" id="">
-                        </div>
-                    </div>
-                    <div id="staff">
-                        <div class="mb-3">
-                            <label for="">Role</label>
-                            <select name="staff_role" id="role" class="form-control">
-                                <option value="">Select Role</option>
-                                <option value="Admin">Admin</option>
-                                <option value="Assistant">Assistant</option>
-                                <option value="Other">Other</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="">Hire Date</label>
-                            <input type="date" class="form-control" name="hire_date" id="">
-                        </div>
-                        <div class="mb-3">
-                            <label for="">Salary</label>
-                            <input type="nu" class="form-control" name="salary" id="">
-                        </div>
-                    </div>
+                    <div id="teacher"></div>
+                    <div id="staff"></div>
                     <div class="text-center">
                         <input type="submit" value="Register" class="btn btn-primary text-white" name="register" />
                     </div>
@@ -196,23 +178,52 @@ if (isset($_POST['register'])) {
     let teacher = document.querySelector("#teacher");
     let staff = document.querySelector("#staff");
 
-    teacher.style.display = "none";
-    staff.style.display = "none";
     role.onchange = function(e) {
         e.preventDefault();
         //   console.log(this.value)
         if (this.value === "Teacher") {
-            teacher.style.display = "block";
-            staff.style.display = "none";
+            let teacherData = `
+            <div class="mb-3">
+                <label for="">Hire Date</label>
+                <input type="date" class="form-control" name="hire_date" id="">
+            </div>
+            <div class="mb-3">
+                <label for="">Salary</label>
+                <input type="text" class="form-control" name="salary" id="">
+            </div>
+            `;
+            teacher.innerHTML = teacherData;
+            staff.innerHTML = '';
         } else if (this.value === "Staff") {
-            teacher.style.display = "none";
-            staff.style.display = "block";
-        } else if (this.value === "Admin") {
-            teacher.style.display = "none";
-            staff.style.display = "none";
+            let staffData = `
+            <div class="mb-3">
+                <label for="">Role</label>
+                <select name="staff_role" id="role" class="form-control">
+                    <option value="">Select Role</option>
+                    <option value="Admin">Admin</option>
+                    <option value="Assistant">Assistant</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="">Hire Date</label>
+                <input type="date" class="form-control" name="hire_date" id="">
+            </div>
+            <div class="mb-3">
+                <label for="">Salary</label>
+                <input type="nu" class="form-control" name="salary" id="">
+            </div>
+            `;
+            staff.innerHTML = staffData;
+            teacher.innerHTML = ""
+            // teacher.style.display = "none";
+            // staff.style.display = "block";
         } else if (this.value === "Parent") {
-            teacher.style.display = "none";
-            staff.style.display = "none";
+            teacher.innerHTML = '';
+            staff.innerHTML = '';
+        } else if (this.value === "Admin") {
+            teacher.innerHTML = '';
+            staff.innerHTML = '';
         }
     }
 </script>

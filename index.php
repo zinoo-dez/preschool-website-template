@@ -1,9 +1,16 @@
+<?php
+session_start();
+$success =  isset($_GET['success']);
+if ($success) {
+  echo '<div class="alert alert-success text-center" onclick="this.style.display = \'none\'" >Login success</div>';
+}
+?>
 <?php include "./layouts/header.php" ?>
 <div class="container-xxl bg-white p-0">
   <!-- Spinner Start -->
   <?php
-   include("./components/spinner.php") 
-   ?>
+  include("./components/spinner.php")
+  ?>
   <!-- Spinner End -->
 
   <!-- Navbar Start -->
